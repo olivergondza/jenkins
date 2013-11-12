@@ -49,6 +49,12 @@ THE SOFTWARE.
       </j:if>
     </table>
      <st:include page="jobpropertysummaries.jelly" />
+
+      <!-- merge fragments from the actions -->
+      <j:forEach var="a" items="${it.actions}">
+        <st:include page="jobMain.jelly" it="${a}" optional="true" />
+      </j:forEach>
+
       <p:upstream-downstream />
     </l:main-panel>
   </l:layout>
