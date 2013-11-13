@@ -30,7 +30,7 @@ THE SOFTWARE.
     The box is drawn as a table, and the body of this tag
     is expected to draw a series of &lt;TR>s to fill in the contents
     of the box.
-    
+
     <st:attribute name="title" use="required">
       Title of the box. Can include HTML.
     </st:attribute>
@@ -42,10 +42,36 @@ THE SOFTWARE.
       @id of the table, if specified.
     </st:attribute>
   </st:documentation>
-  <table class="pane" id="${attrs.id}">
+  <j:set var="id" value="${attrs.id!=null ? attrs.id : title.hashCode()}"/>
+  <table class="pane" id="${id}">
     <tr><td class="pane-header" colspan="${width}">
       <j:out value="${title}"/>
+      <a style="float: right" href="javascript: collapse_pane('${id}')">${%Collapse}</a>
     </td></tr>
     <d:invokeBody />
   </table>
+  <table class="pane" id="${id}-header" style="display: none">
+    <tr><td class="pane-header">
+      <j:out value="${title}"/>
+      <a style="float: right" href="javascript: expand_pane('${id}')">${%Expand}</a>
+    </td></tr>
+  </table>
+  <st:once>
+    <script>
+      function collapse_pane(id) {
+        document.getElementById(id).style.display = "none";
+        document.getElementById(id + '-header').style.display = "";
+        YAHOO.util.Cookie.set("pane." + id + ".collapsed", "true", {path: "/"});
+      }
+
+      function expand_pane(id) {
+        document.getElementById(id).style.display = "";
+        document.getElementById(id + '-header').style.display = "none";
+        YAHOO.util.Cookie.remove("pane." + id + ".collapsed", {path: "/"});
+      }
+    </script>
+  </st:once>
+  <j:if test="${h.getCookie(request, 'pane.' + id + '.collapsed').value == 'true'}">
+    <script>collapse_pane('${id}')</script>
+  </j:if>
 </j:jelly>

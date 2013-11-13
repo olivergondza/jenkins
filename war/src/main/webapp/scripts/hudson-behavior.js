@@ -1457,7 +1457,8 @@ function expandTextArea(button,id) {
 // by using the contents fetched from the given URL.
 function refreshPart(id,url) {
     var f = function() {
-        if(isPageVisible()) {
+        // noop if page or element is hidden
+        if(isPageVisible() && $(id).style.display != "none") {
             new Ajax.Request(url, {
                 onSuccess: function(rsp) {
                     var hist = $(id);
