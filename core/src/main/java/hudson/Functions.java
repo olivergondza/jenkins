@@ -1819,16 +1819,49 @@ public class Functions {
      * Get a string that can be safely broken to several lines when necessary.
      *
      * This implementation inserts &lt;wbr> tags into string. It allows browsers
-     * to wrap line before any sequence of punctuation characters or anywhere
-     * in the middle of prolonged sequences of word characters.
+     * to wrap line at punctuation characters or in the middle of prolonged
+     * sequences of word characters.
      *
      * @since 1.517
      */
     public static String breakableString(final String plain) {
+        final String breakBefore = "!\\\"#$%&'(*+,./:<=?@[^_`{|~";
+        final String breakAfter = ";)>]}";
+        final String wbr = "<wbr>";
+        final int length = plain.length();
 
-        return plain.replaceAll("(\\p{Punct}+\\w)", "<wbr>$1")
-                .replaceAll("(\\w{10})(?=\\w{3})", "$1<wbr>")
-        ;
+        final StringBuilder b = new StringBuilder(length * 2);
+        int lastBreak = 0;
+        for (int i = 0, codePoint; i < length; i += Character.charCount(codePoint)) {
+            codePoint = plain.codePointAt(i);
+
+            // There is a break near to the and of the string, skip any further breaking
+            if (length - lastBreak <= 10) {
+                b.append(plain.substring(i));
+                break;
+            }
+
+            if (Character.isWhitespace(codePoint) || codePoint == '-') {
+                // Breakable in browser
+                lastBreak = i;
+            } else if (i - lastBreak > 1 && breakBefore.indexOf(codePoint) != -1) {
+                // Break before punctuation
+                b.append(wbr);
+                lastBreak = i;
+            } else if (i - lastBreak >= 10) {
+                // Break inside long words
+                b.append(wbr);
+                lastBreak = i;
+            }
+
+            b.appendCodePoint(codePoint);
+            if (i - lastBreak > 0 && breakAfter.indexOf(codePoint) != -1) {
+                b.append(wbr);
+                lastBreak = i + 1;
+            }
+        }
+
+        return b.toString();
     }
 
     /**
