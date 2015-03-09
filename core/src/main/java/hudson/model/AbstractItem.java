@@ -215,6 +215,8 @@ public abstract class AbstractItem extends Actionable implements Item, HttpDelet
     protected void renameTo(final String newName) throws IOException {
         // always synchronize from bigger objects first
         final ItemGroup parent = getParent();
+        String oldName = this.name;
+        String oldFullName = getFullName();
         synchronized (parent) {
             synchronized (this) {
                 // sanity check
@@ -247,9 +249,6 @@ public abstract class AbstractItem extends Actionable implements Item, HttpDelet
                     }
                 });
 
-
-                String oldName = this.name;
-                String oldFullName = getFullName();
                 File oldRoot = this.getRootDir();
 
                 doSetName(newName);
@@ -323,10 +322,9 @@ public abstract class AbstractItem extends Actionable implements Item, HttpDelet
                 } catch (AbstractMethodError _) {
                     // ignore
                 }
-
-                ItemListener.fireLocationChange(this, oldFullName);
             }
         }
+        ItemListener.fireLocationChange(this, oldFullName);
     }
 
     public void movedTo(DirectlyModifiableTopLevelItemGroup destination, AbstractItem newItem, File destDir) throws IOException {
