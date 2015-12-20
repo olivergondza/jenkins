@@ -125,6 +125,7 @@ import org.kohsuke.accmod.restrictions.DoNotUse;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.basic.AbstractSingleValueConverter;
+import jenkins.util.SystemProperties;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import jenkins.model.queue.AsynchronousExecution;
@@ -176,7 +177,7 @@ public class Queue extends ResourceController implements Saveable {
      * Data should be defined in milliseconds, default value - 1000;
      * @since 1.577
      */
-    private static int CACHE_REFRESH_PERIOD = Integer.getInteger(Queue.class.getName() + ".cacheRefreshPeriod", 1000);
+    private static int CACHE_REFRESH_PERIOD = SystemProperties.getInteger(Queue.class.getName() + ".cacheRefreshPeriod", 1000);
 
     /**
      * Items that are waiting for its quiet period to pass.

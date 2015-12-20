@@ -25,6 +25,7 @@ package hudson.slaves;
 
 import hudson.FilePath;
 import hudson.Functions;
+import jenkins.util.SystemProperties;
 import hudson.model.Computer;
 import java.io.Closeable;
 
@@ -288,5 +289,5 @@ public final class WorkspaceList {
     /**
      * The token that combines the project name and unique number to create unique workspace directory.
      */
-    private static final String COMBINATOR = System.getProperty(WorkspaceList.class.getName(),"@");
+    private static final String COMBINATOR = SystemProperties.getString(WorkspaceList.class.getName(),"@");
 }
