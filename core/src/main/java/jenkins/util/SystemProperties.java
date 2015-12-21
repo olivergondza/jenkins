@@ -87,6 +87,7 @@ public class SystemProperties {
      * @exception  IllegalArgumentException if <code>key</code> is empty.
      */
     public static String getString(String key) {
+System.err.println("==GETTING " + key + "==");
         String value = System.getProperty(key); // keep passing on any exceptions
         if (value != null) {
             if (LOGGER.isLoggable(Level.CONFIG)) {
@@ -125,6 +126,7 @@ public class SystemProperties {
      * @exception  IllegalArgumentException if <code>key</code> is empty.
      */
     public static String getString(String key, String def) {
+System.err.println("==GETTING " + key + "==");
         String value = System.getProperty(key); // keep passing on any exceptions
         if (value != null) {
             if (LOGGER.isLoggable(Level.CONFIG)) {
@@ -232,6 +234,7 @@ public class SystemProperties {
      * @param context the <code>ServletContext</code> obtained from <code>contextInitialized</code>
      */
     public static void initialize(ServletContext context) {
+System.err.println("==CONTEXT INITIALIZED==");
         theContext = context;
     }
 }
