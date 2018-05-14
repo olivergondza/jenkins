@@ -69,6 +69,7 @@ import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.Assume.assumeFalse;
 
+import org.jenkinsci.remoting.RoleChecker;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -76,6 +77,11 @@ import org.junit.rules.TemporaryFolder;
 
 import org.jvnet.hudson.test.Issue;
 import org.mockito.Mockito;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import static org.mockito.Mockito.*;
 
 /**
@@ -845,4 +851,66 @@ public class FilePathTest {
         assertTrue("junction target contents should not be deleted", Files.exists(targetContents));
         assertFalse("could not delete target", Files.exists(toDelete));
     }
+
+    @Issue("JENKINS-51082")
+    @Test
+    public void testThatCallingStackTraceIsNotAttached() throws InterruptedException  {
+        VirtualChannel channel = createTestVirtualChannel();
+        FilePath.FileCallable callable = new FilePath.FileCallable() {
+            @Override
+            public Object invoke(File f, VirtualChannel channel) throws IOException {
+                throw new IOException("Testing exception.");
+            }
+
+            @Override
+            public void checkRoles(RoleChecker roleChecker) throws SecurityException {
+            }
+        };
+
+        final FilePath filePath = new FilePath(channel, "test");
+        try {
+            filePath.act(callable);
+            fail("Custom callable should have thrown exception.");
+        } catch (IOException ioe) {
+            assertNull("Should not have added cause.", ioe.getCause());
+            assertFalse("Should not have added message.", ioe.getMessage().contains("remote file operation failed"));
+        }
+    }
+
+    private VirtualChannel createTestVirtualChannel() {
+        return new VirtualChannel() {
+                @Override
+                public <V, T extends Throwable> V call(@Nonnull hudson.remoting.Callable<V, T> callable) throws IOException, T, InterruptedException {
+                    return callable.call();
+                }
+
+                @Override
+                public <V, T extends Throwable> hudson.remoting.Future<V> callAsync(@Nonnull hudson.remoting.Callable<V, T> callable) throws IOException {
+                    return null;
+                }
+
+                @Override
+                public void close() throws IOException {
+                }
+
+                @Override
+                public void join() throws InterruptedException {
+                }
+
+                @Override
+                public void join(long l) throws InterruptedException {
+                }
+
+                @Nullable
+                @Override
+                public <T> T export(@Nonnull Class<T> aClass, @CheckForNull T t) {
+                    return null;
+                }
+
+                @Override
+                public void syncLocalIO() throws InterruptedException {
+                }
+            };
+    }
+
 }
